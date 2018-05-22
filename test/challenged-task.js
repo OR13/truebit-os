@@ -40,7 +40,7 @@ describe('Challenged Task Life Cycle', async function() {
       minDeposit: 1000,
       data: [1, 2, 3, 4, 5, 6, 7, 8, 9],
       intervals: [20, 40, 60],
-      //disputeResAddress: os.contracts.disputeResolutionLayer.address,
+      disputeResAddress: os.verifier.debug.disputeResolutionLayer.address,
       reward: os.web3.utils.toWei('1', 'ether'),
       from: os.accounts[0]
     });

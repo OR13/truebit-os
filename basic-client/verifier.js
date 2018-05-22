@@ -41,6 +41,7 @@ module.exports = {
 
 			let [incentiveLayer, disputeResolutionLayer, computationLayer] = await setup(web3.currentProvider)
 			debug.incentiveLayer = incentiveLayer;
+			debug.disputeResolutionLayer = disputeResolutionLayer;
 			const solutionCommittedEvent = incentiveLayer.SolutionCommitted()
 
 			solutionCommittedEvent.watch(async (err, result) => {
