@@ -24,7 +24,7 @@ function setup(httpProvider) {
 }
 
 module.exports = {
-		init: async (web3, account) => {
+		init: async (web3, account, cheat) => {
 
 			let [incentiveLayer, disputeResolutionLayer, computationLayer] = await setup(web3.currentProvider)
 
@@ -56,6 +56,11 @@ module.exports = {
 								let output = await computationLayer.runSteps.call(program, taskData.numSteps)
 	
 								let solution = output[0][1]
+								
+								console.log('should solver cheat?', cheat)
+								if (cheat){
+									solution = solution.replace('00', '11')
+								}
 	
 								tx = await incentiveLayer.commitSolution(taskID, solution, {from: account})
 	

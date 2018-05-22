@@ -16,7 +16,11 @@ function toGameData(data) {
 
 const fs = require('fs')
 
+const depositsHelper = require('./depositsHelper')
 const contract = require('./contractHelper')
+const toTaskData = require('./util/toTaskData')
+const util = require('ethereumjs-util')
+
 
 function setup(httpProvider) {
 	return (async () => {
@@ -29,14 +33,18 @@ function setup(httpProvider) {
 	})()
 }
 
+let debug = {}
+
 module.exports = {
+		debug: debug,
 		init: async (web3, account) => {
 
 			let [incentiveLayer, disputeResolutionLayer, computationLayer] = await setup(web3.currentProvider)
-			
+			debug.incentiveLayer = incentiveLayer;
 			const solutionCommittedEvent = incentiveLayer.SolutionCommitted()
 
 			solutionCommittedEvent.watch(async (err, result) => {
+		
 				if (result) {
 					let taskID = result.args.taskID.toNumber()
 					let taskMinDeposit = result.args.minDeposit.toNumber()
@@ -56,10 +64,17 @@ module.exports = {
 						let output = await computationLayer.runSteps.call(program, taskData.numSteps)
 	
 						let mySolution = output[0][1]
-	
+						
+						// .replace('2d', '00')
+						// console.log('mySolution, solution', mySolution, solution)
 						if(mySolution != solution) {
+							console.log(`verifier (${account}) will challenge.`)
 							await depositsHelper(web3, incentiveLayer, account, taskMinDeposit)
-	
+							// https://github.com/TrueBitFoundation/incentive-layer#finite-state-machine
+							// https://github.com/TrueBitFoundation/incentive-layer/blob/052abab7fe7855a7ab08f4e7b608280adc75247c/test/incentive_layer.js#L96
+							// const intent = 0
+							// const intenthash = web3.utils.soliditySha3(intent)
+							// console.log(incentiveLayer)
 							await incentiveLayer.commitChallenge(taskID, {from: account})
 						}
 					}
